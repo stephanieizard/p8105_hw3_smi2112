@@ -1,0 +1,10 @@
+---
+title: "p8105_hw3_smi2112"
+author: "Stephanie Izard"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
