@@ -9,6 +9,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 library(tidyverse)
 library(ggridges)
+library(p8105.datasets)
 ```
 
 ##Problem 1
@@ -16,7 +17,6 @@ library(ggridges)
 Loading BRFSS data from p8105.datasets package:
 
 ```{r cache = TRUE}
-library(p8105.datasets)
 data("brfss_smart2010")
 ```
 
@@ -30,67 +30,59 @@ brfss = brfss_smart2010 %>%
   mutate(response = forcats::fct_relevel(response, c("Excellent", "Very good", "Good", "Fair","Poor")))
 ```
 
-Question: In 2002, which states were observed at 7 locations? 
+Question: In 2002, which states were observed at 7 locations?
 
 ```{r}
 brfss %>% 
   filter(year == 2002) %>% 
-  select(state, county) %>% 
+  select(year, state, county) %>% 
   group_by(state) %>% 
-  sum(county)
-
+  summarize(n = n()) %>% 
+  filter(n == 7)
 ```
 
-Answer:
+Answer: 0 states were observed at exactly 7 locations in 2002.
 
 Spaghetti plot showing the number of locations in each state from 2002 to 2010:
 
 ```{r}
 brfss %>%
-  ggplot(aes(x = year, y = ))
-
+  select(year, state, county) %>% 
+  group_by(year, state) %>% 
+  mutate(locations = n()) %>% 
+  ggplot(aes(x = year, y = locations, color = state)) +
+  geom_line() +
+  labs(title = "Number of locations in each state from 2002 to 2010", x = "Year", y = "Number of locations") +
+  theme_bw()
 ```
 
-Table showing for the years 2002, 2006, and 2010 the mean and std of the proportion of "Execllent" responses across lcoations in NYS:
+Table showing for the years 2002, 2006, and 2010 the mean and std of the proportion of "Execllent" responses across locations in NYS:
 
 ```{r}
 brfss %>% 
   select(year, response) %>% 
   filter(year == 2002 | year == 2006 | year == 2010) %>% 
-  group_by(year) %>% 
+  group_by(year, county) %>% 
   summarize(mean(response == "Excellent"), sd(response == "Excellent"))
 ```
 
-For each year and state, the average proportion in each response category.
-
+For each year and state, compute the average proportion in each response category.
 
 ```{r}
-brfss %>% 
-  select(year, state, response) %>% 
+brfss %>%
+  select(year, state, response, data_value) %>% 
   group_by(year, state) %>% 
-  mutate(response_count = count(response)) 
-
-brfss %>% 
-  group_by(year, state) %>% 
-  mutate(response_avg = count(response))) %>% 
-  ungroup()
+  summarize(mean(data_value))
 
 ggplot(brfss, aes(x = year)) +
-  geom_density(aes(fill = state), alpha = 0.5) +
+  geom_density_ridges(aes(fill = state), alpha = 0.5) +
   facet_grid( ~ response) +
   theme_bw()
-  
-
 ```
 
 
-##Problem 2
 
-Loading instacart data:
 
-```{r cache = TRUE}
-data("instacart")
-```
 
 ##Problem 3
 
