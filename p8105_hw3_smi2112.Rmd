@@ -65,9 +65,11 @@ Table showing for the years 2002, 2006, and 2010 the mean and std of the proport
 brfss %>% 
   filter(state == "NY") %>% 
   filter(year == 2002 | year == 2006 | year == 2010) %>% 
-  select(year, county, response) %>% 
+  filter(response == "Excellent") %>% 
+  rename(proportion = data_value) %>% 
+  select(year, proportion) %>% 
   group_by(year) %>% 
-  summarize("Mean" = mean(response == "Excellent"), "Std" = sd(response == "Excellent")) %>% 
+  summarize("Mean" = mean(proportion), "Std" = sd(proportion)) %>% 
   rename("Year" = year) %>% 
   knitr::kable()
 ```
@@ -205,7 +207,7 @@ ny_noaa <- ny_noaa %>%
 Date was sepparated into year, month, and day. Maximum and minimum temperature were changed from tenths of degrees C to degrees C. Precipitation was changed from tenths of a mm to cm. Snowfall and snow depth were changed from mm to cm.
 
 The most commonly observed snowfall value is 0 cm. The second most commonly observed snowfall is 2.5 cm.
-It is logical that the top most observed snowfall is 0 cm because 
+It is logical that the top most observed snowfall is 0 cm because it is more common to have no snow than to have any snow. 
 
 ```{r}
 ny_noaa %>% 
@@ -230,6 +232,8 @@ ny_noaa %>%
   theme(axis.text.x = element_text(angle = 90, size = 7)) 
 ```
 
+From the above plot, we can observe that there seems to be a sinusoidal trend over the years for both January and July. The maximum temperatures in January at each station are lower than the maximum temperatures in July. There is an outlier at one of the stations in January of 1982 and another in July of 1988.
+
 Two-panel plot showing (i) tmax vs tmin for the full dataset and (ii) the distribution of snowfall values between 0 and 100 separately by year:
 
 ```{r, fig.width = 10}
@@ -242,9 +246,9 @@ plot1 <- ggplot(ny_noaa, aes(x = tmax, y = tmin)) +
   theme_bw()
 
 plot2 <- ny_noaa %>% 
-  filter(snow >= 0 & snow <= 100) %>% 
+  filter(snow > 0 & snow < 100) %>% 
   ggplot(aes(x = snow, y = year)) +
-  geom_density_ridges(scale = 0.9, fill = "darkred") + 
+  geom_density_ridges(scale = 0.9, fill = "darkslateblue") + 
   labs(title = "Snow fall distribution per year", x = "Snowfall (cm)", y = "Year") +
   theme_bw()
 
