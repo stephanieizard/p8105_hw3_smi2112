@@ -40,6 +40,7 @@ brfss %>%
   distinct() %>% 
   count(state) %>% 
   filter(n == 7) %>% 
+  rename("State" = state, "Number of Locations" = n) %>% 
   knitr::kable()
 ```
 
@@ -55,8 +56,7 @@ brfss %>%
     geom_line() +
     labs(title = "Number of locations in each state from 2002 to 2010", x = "Year", y = "Number of locations") +
     viridis::scale_color_viridis(option = "viridis", discrete = TRUE) +
-    theme_bw() +
-    theme(legend.position = "bottom")
+    theme_bw()
 ```
 
 Table showing for the years 2002, 2006, and 2010 the mean and std of the proportion of "Execllent" responses across locations in NYS:
@@ -67,7 +67,8 @@ brfss %>%
   filter(year == 2002 | year == 2006 | year == 2010) %>% 
   select(year, county, response) %>% 
   group_by(year) %>% 
-  summarize("mean" = mean(response == "Excellent"), "std" = sd(response == "Excellent")) %>% 
+  summarize("Mean" = mean(response == "Excellent"), "Std" = sd(response == "Excellent")) %>% 
+  rename("Year" = year) %>% 
   knitr::kable()
 ```
 
@@ -96,6 +97,77 @@ brfss %>%
     facet_grid(~ response) +
     labs(title = "Average proportion of responses by year", x = "Proportion", y = "Year") + 
     theme_bw()
+```
+
+##Problem 2
+
+Loading instacart data:
+
+```{r cache = TRUE}
+instacart <- p8105.datasets::instacart
+```
+
+Short description of dataset:
+
+The size of the dataset is `r dim(instacart)` (1384617 observations/ rows and 15 variables/ columns) and is in long format. The variable "order_id" is a number unique to each individual order, the variable "order_dow" is the day of the week the order was placed (0 = Sunday), "order_hour_of_day" is the hour of the day when the order was placed, "product_name" is the product name, "aisle_id" is a number unique to each aisle, and "aisle" is the name of the aisle. The dataset, "The Instacart Online Grocery Shopping Dataset 2017", comes from Instacart, an online grocery service. There were `r instacart %>% select(order_id) %>% n_distinct()` unique order identification numbers. `r instacart %>% select(order_dow) %>% filter(order_dow == 0) %>% group_by(order_dow) %>% summarize(n())` total products were ordered on a Sunday. 
+
+Number of aisles, most popular aisles:
+
+There are 134 different aisles in the store. Aisle number 83 has the most items ordered from it, with a total of 150609 products. Aisle number 24 has the second most items ordered from it, with a total of 150473 products.
+
+```{r}
+instacart %>% 
+  select(aisle_id) %>% 
+  n_distinct()
+
+instacart %>% 
+  select(aisle_id) %>% 
+  group_by(aisle_id) %>% 
+  count(aisle_id) %>% 
+  arrange(desc(n))
+```
+
+Plot showing the number of items ordered in each aisle:
+  
+```{r}
+instacart %>% 
+  select(aisle) %>% 
+  group_by(aisle) %>% 
+  summarize(n = n()) %>% 
+  mutate(aisle = forcats::fct_reorder(aisle, n)) %>% 
+  arrange(desc(n)) %>% 
+  ggplot(aes(x = aisle, y = n)) + 
+    geom_histogram(stat = "identity", fill = "darkslateblue") +
+    scale_y_continuous(limits = c(0, 150700), breaks = c(0, 25000, 50000, 75000, 100000, 125000, 150000)) + 
+    labs(title = "Number of orders per aisle", x = "Aisle", y = "Number of orders") +
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+```
+
+Table showing most popular items for "baking ingredients", "dog food care", and "packaged vegetables fruits":
+
+```{r}
+instacart %>% 
+  filter(aisle == "baking ingredients" | aisle == "dog food care" | aisle == "packaged vegetables fruits") %>% 
+  select(aisle, product_name, order_id) %>% 
+  group_by(aisle, product_name) %>% 
+  summarize(n = n()) %>% 
+  filter(n == max(n)) %>% 
+  rename("Aisle" = aisle, "Most Popular Product" = product_name, "Number of Orders" = n) %>% 
+  knitr::kable()
+```
+
+Table showing the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week:
+
+```{r}
+instacart %>% 
+  select(product_name, order_hour_of_day, order_dow) %>%
+  mutate(order_dow = factor(order_dow, levels = c(0,1,2,3,4,5,6), labels = c("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"))) %>% 
+  filter(product_name == "Pink Lady Apples" | product_name == "Coffee Ice Cream") %>% 
+  group_by(product_name, order_dow) %>% 
+  summarize(hour_mean = mean(order_hour_of_day)) %>% 
+  spread(key = order_dow, value = hour_mean) %>% 
+  rename("Product Name" = product_name) %>% 
+  knitr::kable()
 ```
 
 
