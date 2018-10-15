@@ -46,7 +46,7 @@ brfss %>%
 
 Spaghetti plot showing the number of distinct locations in each state from 2002 to 2010:
 
-```{r}
+```{r, fig.width = 8}
 brfss %>%
   select(year, state, county) %>% 
   distinct(year, state, county) %>% 
@@ -55,7 +55,7 @@ brfss %>%
   ggplot(aes(x = year, y = locations, color = state)) +
     geom_line() +
     labs(title = "Number of locations in each state from 2002 to 2010", x = "Year", y = "Number of locations") +
-    viridis::scale_color_viridis(option = "viridis", discrete = TRUE) +
+    viridis::scale_color_viridis(option = "viridis", discrete = TRUE, name = "State") +
     theme_bw()
 ```
 
@@ -85,7 +85,7 @@ brfss %>%
 
 A five-panel plot showing the distribution of the above state level averages over time:
 
-```{r}
+```{r, fig.width = 6}
 brfss %>%
   select(year, state, response, data_value) %>%
   rename(proportion = data_value) %>% 
@@ -129,7 +129,7 @@ instacart %>%
 
 Plot showing the number of items ordered in each aisle:
   
-```{r}
+```{r, fig.width = 10}
 instacart %>% 
   select(aisle) %>% 
   group_by(aisle) %>% 
@@ -140,7 +140,7 @@ instacart %>%
     geom_histogram(stat = "identity", fill = "darkslateblue") +
     scale_y_continuous(limits = c(0, 150700), breaks = c(0, 25000, 50000, 75000, 100000, 125000, 150000)) + 
     labs(title = "Number of orders per aisle", x = "Aisle", y = "Number of orders") +
-    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1, size = 7))
 ```
 
 Table showing most popular items for "baking ingredients", "dog food care", and "packaged vegetables fruits":
@@ -205,6 +205,7 @@ ny_noaa <- ny_noaa %>%
 Date was sepparated into year, month, and day. Maximum and minimum temperature were changed from tenths of degrees C to degrees C. Precipitation was changed from tenths of a mm to cm. Snowfall and snow depth were changed from mm to cm.
 
 The most commonly observed snowfall value is 0 cm. The second most commonly observed snowfall is 2.5 cm.
+It is logical that the top most observed snowfall is 0 cm because 
 
 ```{r}
 ny_noaa %>% 
@@ -215,7 +216,7 @@ ny_noaa %>%
 
 Two-panel plot showing the average max temperature in January and in July in each station across years:
 
-```{r}
+```{r, fig.width = 10}
 ny_noaa %>% 
   filter(month == "01" | month == "07") %>% 
   mutate(month = if_else(month == "01", "January", "July")) %>% 
@@ -225,12 +226,13 @@ ny_noaa %>%
   geom_line(color = "darkslateblue") +
   facet_grid(~ month) +
   labs(title = "Average maximum temperature at each site in January and July from 1981 to 2010 in NYS", x = "Year", y = "Temperature (Degrees C)") +
-  theme_bw()
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 90, size = 7)) 
 ```
 
-Two-panel plot showing (i) tmax vs tmin for the full dataset and (ii) the distribution of snowfall values between 0 and 100 separately by year.
+Two-panel plot showing (i) tmax vs tmin for the full dataset and (ii) the distribution of snowfall values between 0 and 100 separately by year:
 
-```{r}
+```{r, fig.width = 10}
 library(patchwork)
 
 plot1 <- ggplot(ny_noaa, aes(x = tmax, y = tmin)) +
@@ -248,16 +250,3 @@ plot2 <- ny_noaa %>%
 
 plot1 + plot2
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
