@@ -1,0 +1,48 @@
+---
+title: "hw3_q3"
+author: "Stephanie Izard"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+```
+
+##Problem 3
+
+Loading NY NOAA data:
+
+```{r cache = TRUE}
+ny_noaa <- p8105.datasets::ny_noaa
+```
+
+Short description of dataset:
+
+The size of the dataset is `r dim(ny_noaa)` (2595176 observations/ rows and 7 variables/ columns) and is in long format. The variable "id" is weather station ID, "date" is the date of observation, "prcp" is amount of precipitation measured in tenth of mm, "snow" is amount of snowfall measured in mm, "snwd" is snow depth measured in mm, "tmax" is the maximum temperature measured in tenths of degrees C, and "tmin" is the minimum temperature measured in tenths of degrees C. The dataset contains extensive missing data, as each weather station may only collect a subset of these variables. The table created below (missing_data) summarizes the proportion of missing variables at each station.
+
+```{r}
+missing_data <- ny_noaa %>% 
+  group_by(id) %>% 
+  summarise_all(funs(mean(is.na(.))))
+```
+
+Data cleaning:
+
+```{r}
+ny_noaa <- ny_noaa %>% 
+  separate(date, into = c("year", "month", "day"), sep = "-") %>% 
+  mutate_at(vars(prcp:tmin), as.numeric) %>% 
+  mutate(tmax = tmax/10) %>% 
+  mutate(tmin = tmin / 10) %>% 
+  mutate()
+
+```
+
+
+
+
+
+
+

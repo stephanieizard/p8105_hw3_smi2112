@@ -1,0 +1,85 @@
+---
+title: "hw3_q2"
+author: "Stephanie Izard"
+date: "October 13, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(ggridges)
+library(p8105.datasets)
+```
+
+##Problem 2
+
+Loading instacart data:
+
+```{r cache = TRUE}
+data("instacart")
+```
+
+Short description of dataset:
+
+The size of the dataset is `r dim(instacart)` (1384617 observations/ rows and 15 variables/ columns) and is in long format. Some key variables are order_id (a number unique to each individual order), order_dow (order day of the week, 0 = Sunday), aisle_id (a number unique to each aisle) and aisle (a character id for each aisle). There were `r instacart %>% select(order_id) %>% n_distinct()` unique orders reported. There are `r instacart %>% select(aisle_id) %>% n_distinct()` aisle id numbers, and `r instacart %>% select(aisle) %>% n_distinct()` aisle names.
+
+Number of aisles, most popular aisles:
+
+```{r}
+instacart %>% 
+  select(aisle_id) %>% 
+  n_distinct()
+
+instacart %>% 
+  select(aisle_id) %>% 
+  group_by(aisle_id) %>% 
+  count(aisle_id) %>% 
+  arrange(desc(n))
+
+table(instacart$aisle, instacart$aisle_id)
+```
+
+There are 134 different aisles in the store. Aisle number 83 has the most items ordered from it, with a total of 150609 products. Aisle number 24 has the second most items ordered from it, with a total of 150473 products.
+
+Plot showing the number of items ordered in each aisle:
+  Order aisles sensibly, organize plot so others can read it.
+  
+```{r}
+instacart %>% 
+  select(aisle) %>% 
+  group_by(aisle) %>% 
+  arrange() %>% 
+  ggplot(aes(x = aisle)) + 
+    geom_histogram(stat = "count") +
+    scale_y_continuous(limits = c(0, 150700), breaks = c(25000, 50000, 75000, 100000, 125000, 150000)) + 
+    labs(title = "Number of orders per aisle", x = "Aisle", y = "Number of orders") +
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+```
+
+Table showing most popular items for "baking ingredients", "dog food care", and "packaged vegetables fruits":
+
+```{r}
+instacart %>% 
+  filter(aisle == "baking ingredients" | aisle == "dog food care" | aisle == "packaged vegetables fruits") %>% 
+  select(aisle, product_name) %>% 
+  group_by(aisle, product_name) %>% 
+  summarize(first(aisle))
+
+
+```
+
+Table showing the mean hour of the day at which Pink Lady And Coffee Ice Cream are ordered on each day of the week:
+
+```{r}
+instacart %>% 
+  filter(product_name == "Pink Lady Apples" | product_name == "Coffee Ice Cream") %>% 
+  select(product_name, order_hour_of_day, order_dow) %>%
+  group_by(order_dow) %>% 
+  summarize(pla_avg_time = mean(order_hour_of_day[product_name == "Pink Lady Apples"]),
+            cic_avg_time = mean(order_hour_of_day[product_name == "Coffee Ice Cream"]))
+```
+
+
+

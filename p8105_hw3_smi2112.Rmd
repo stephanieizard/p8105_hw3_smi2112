@@ -75,22 +75,13 @@ brfss %>%
   summarize(mean(data_value))
 
 ggplot(brfss, aes(x = year)) +
-  geom_density_ridges(aes(fill = state), alpha = 0.5) +
+  geom_density(aes(fill = state), alpha = 0.5) +
   facet_grid( ~ response) +
   theme_bw()
 ```
 
 
 
-
-
-##Problem 3
-
-Loading in NY NOAA data:
-
-```{r cache = TRUE}
-data("ny_noaa")
-```
 
 
 
